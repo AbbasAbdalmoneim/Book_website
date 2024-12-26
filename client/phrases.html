@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="./image/logo.png" type="image/x-icon" />
+    <title>Regex Tester</title>
+    <link rel="stylesheet" href="phrases_style.css" />
+  </head>
+  <body>
+    <section>
+      <nav>
+        <div class="logo">
+          <img src="image/logo.png" />
+        </div>
+
+        <ul>
+          <li><a href="Home.html">Home</a></li>
+          <li><a href="Books.html">Books</a></li>
+          <li><a href="phrases.html">Phrases</a></li>
+          <li><a href="quotes.html">Quotes</a></li>
+          <li><a href="upload.html">Add Books</a></li>
+        </ul>
+
+        <div class="social_icon">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <i class="fa-solid fa-heart"></i>
+        </div>
+      </nav>
+    </section>
+    <div class="regex-container">
+      <h1>Books Phrases Finder</h1>
+
+      <label for="book-select">Select a Book:</label>
+      <select id="book-select"></select>
+
+      <label for="regex-input">Enter Regex Pattern:</label>
+      <input
+        type="text"
+        id="regex_input"
+        placeholder="e.g., \bword\b for exact word match"
+      />
+
+      <button id="search-btn">Search</button>
+
+      <div class="output" id="output">
+        <!-- Results will appear here -->
+      </div>
+    </div>
+
+    <script>
+      // Fetch books and populate dropdown
+      const bookSelect = document.getElementById("book-select");
+      const searchButton = document.getElementById("search-btn");
+      const regexInput = document.getElementById("regex_input");
+      const outputDiv = document.getElementById("output");
+
+      async function fetchBooks() {
+        try {
+          const response = await fetch("http://127.0.0.1:5000/api/books_list");
+          const books = await response.json();
+          console.log(books);
+          books.forEach((book) => {
+            const option = document.createElement("option");
+            option.value = book.id;
+            option.textContent = book.name;
+            bookSelect.appendChild(option);
+          });
+        } catch (error) {
+          console.error("Error fetching books:", error);
+        }
+      }
+
+      // Perform regex search
+      searchButton.addEventListener("click", async (e) => {
+        e.preventDefault();
+
+        outputDiv.innerHTML = `<span id="loading"></span>`;
+        searchButton.style.cursor = "not-allowed";
+
+        let formData = new FormData();
+        const bookId = bookSelect.value;
+        const regexPattern = regexInput.value;
+        formData.append("book_id", bookId);
+        formData.append("search_term", regexPattern);
+
+        console.log(bookId, regexPattern);
+        console.log("Form data");
+        // console.log(formData.get("book_id"), formData.get("search_term"));
+        console.log(formData);
+
+        if (!regexPattern) {
+          outputDiv.innerHTML = `<span class="error_message">Please enter a regex pattern.</span>`;
+          return;
+        }
+
+        try {
+          const response = await fetch("http://127.0.0.1:5000/search", {
+            method: "POST",
+            body: formData,
+          });
+
+          const result = await response.json();
+          searchButton.style.cursor = "pointer";
+          let output = {
+            book_name: "",
+            searching: "",
+            matches: [],
+          };
+          if (result) {
+            console.log(result);
+            output.book_name = result.book_name;
+            output.searching = result.search_term;
+            output.matches = result.results;
+            // console.log(output);
+            console.log(output.matches);
+            outputDiv.innerHTML = `
+                <h1 class="heading">Searching File: ${output.book_name}</h1>
+                <h2 class="searching">Pattern: ${output.searching}<h2>
+                <ul class="list">
+                    ${
+                      output.matches
+                        ? output.matches
+                            .map((match) => {
+                              return `<li>${match.replace("/,/g", "")}</li>`;
+                            })
+                            .join("")
+                        : "<li>No matches found.</li>"
+                    }   
+                </ul>`;
+          } else {
+            outputDiv.innerHTML = `<span class="error_message">No matches found.</span>`;
+          }
+        } catch (error) {
+          console.error("Error performing regex search:", error);
+          outputDiv.innerHTML = `<span class="error_message">An error occurred while searching.</span>`;
+        }
+      });
+
+      // Initialize the page
+      fetchBooks();
+    </script>
+  </body>
+</html>

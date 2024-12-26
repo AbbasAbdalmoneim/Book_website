@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Random Quote</title>
+    <script>
+        async function fetchRandomQuote() {
+            try {
+                const response = await fetch('/api/random_quote');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch quote');
+                }
+                const data = await response.json();
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+                document.getElementById('quote-text').innerText = data.text;
+                document.getElementById('quote-author').innerText = `— ${data.author}`;
+            } catch (error) {
+                console.error(error);
+                alert('An error occurred while fetching a new quote.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>Random Quote</h1>
+    <blockquote>
+        <p id="quote-text">"{{ quote.text }}"</p>
+        <footer id="quote-author">— {{ quote.author }}</footer>
+    </blockquote>
+    <button onclick="fetchRandomQuote()">Generate Another Quote</button>
+    <br><br>
+    <a href="/">Back to Home</a>
+</body>
+</html>

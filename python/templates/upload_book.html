@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Book</title>
+</head>
+<body>
+    <h1>Upload a Book</h1>
+    <form action="/upload_book" method="POST" enctype="multipart/form-data">
+        <label for="pdf">Choose a PDF:</label>
+        <input type="file" name="pdf" id="pdf" accept="application/pdf" required><br><br>
+
+        <label for="image">Choose an Image:</label>
+        <input type="file" name="image" id="image" accept="image/*" required><br><br>
+
+        <button type="submit">Upload</button>
+    </form>
+
+    <br><br>
+    <a href="/">Back to Home</a>
+</body>
+</html>

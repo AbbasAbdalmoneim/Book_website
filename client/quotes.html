@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="./image/logo.png" type="image/x-icon" />
+    <title>Quote Generator</title>
+    <link rel="stylesheet" href="quotes_style.css" />
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <section>
+      <nav>
+        <div class="logo">
+          <img src="image/logo.png" />
+        </div>
+
+        <ul>
+          <li><a href="Home.html">Home</a></li>
+          <li><a href="Books.html">Books</a></li>
+          <li><a href="phrases.html">Phrases</a></li>
+          <li><a href="quotes.html">Quotes</a></li>
+          <li><a href="upload.html">Add Books</a></li>
+        </ul>
+
+        <div class="social_icon">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <i class="fa-solid fa-heart"></i>
+        </div>
+      </nav>
+    </section>
+
+    <!-- Quote Generator Section -->
+    <div class="quote_generator">
+      <h1>Random Quote Generator</h1>
+      <div class="quote_box" id="quoteBox">
+        <h2 id="author"></h2>
+        <p id="quoteText">Click the button to generate a quote!</p>
+      </div>
+      <button class="generate_btn" onclick="generateQuote()">Generate</button>
+    </div>
+
+    <script>
+      let isLoading = false;
+      let quotes = {
+        author: "",
+        quote: "",
+      };
+      async function generateQuote() {
+        isLoading = true;
+        const request = await fetch("http://127.0.0.1:5000/api/random_quote");
+        console.log(request);
+        const data = await request.json();
+        if (!data) {
+          isLoading = false;
+          document.getElementById("quoteText").innerText =
+            "<span class='error_message'>Error: Could not fetch quote</span>";
+          return;
+        }
+        quotes.author = data.author;
+        quotes.quote = data.text;
+        isLoading = false;
+        document.getElementById("author").innerText = isLoading
+          ? "Author..."
+          : quotes.author;
+        document.getElementById("quoteText").innerText = isLoading
+          ? "Loading..."
+          : quotes.quote;
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="./image/logo.png" type="image/x-icon" />
+    <link rel="stylesheet" href="upload.css" />
+    <title>Upload Book Info</title>
+  </head>
+  <body>
+    <section>
+      <nav>
+        <div class="logo">
+          <img src="image/logo.png" />
+        </div>
+
+        <ul>
+          <li><a href="Home.html">Home</a></li>
+          <li><a href="Books.html">Books</a></li>
+          <li><a href="phrases.html">Phrases</a></li>
+          <li><a href="quotes.html">Quotes</a></li>
+          <li><a href="upload.html">Add Books</a></li>
+        </ul>
+
+        <div class="social_icon">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <i class="fa-solid fa-heart"></i>
+        </div>
+      </nav>
+    </section>
+
+    <!-- Quote Generator Section -->
+    <div class="container">
+      <div class="upload_img">
+        <img id="preview" src="" alt="Image preview" />
+      </div>
+      <form id="upload_form" class="upload_form">
+        <label for="pdf"> PDF File </label>
+        <input type="file" name="pdf" id="pdf" accept=".pdf" required />
+        <label for="image"> Image Book Cover </label>
+        <input type="file" name="image" id="image" accept="image/*" required />
+        <input
+          id="upload_btn"
+          type="submit"
+          aria-disabled="false"
+          value="Upload"
+        />
+      </form>
+    </div>
+    <script>
+      const uploadForm = document.getElementById("upload_form");
+      const uploadBtn = document.getElementById("upload_btn");
+      const pdf = document.getElementById("pdf");
+      const image = document.getElementById("image");
+      const preview = document.getElementById("preview");
+
+      //   if (preview.src == "") {
+      //     preview.style.display = "none";
+      //   }
+      image.onchange = () => {
+        if (image.files[0]) {
+          preview.style.display = "block";
+          preview.src = URL.createObjectURL(image.files[0]);
+        }
+      };
+
+      uploadForm.onsubmit = async (e) => {
+        e.preventDefault();
+        uploadBtn.ariaDisabled = "true";
+        uploadBtn.value = "Uploading...";
+        uploadBtn.style.cursor = "not-allowed";
+        const formData = new FormData();
+        formData.append("image", image.files[0]);
+        formData.append("pdf", pdf.files[0]);
+
+        const response = await fetch("http://127.0.0.1:5000/upload_book", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          alert("Error uploading file");
+        }
+        console.log(data);
+        uploadBtn.ariaDisabled = "false";
+        uploadBtn.value = "Upload";
+        alert("File uploaded successfully");
+        pdf.value = "";
+        image.value = "";
+        uploadBtn.style.cursor = "pointer";
+        preview.style.display = "none";
+      };
+    </script>
+  </body>
+</html>
